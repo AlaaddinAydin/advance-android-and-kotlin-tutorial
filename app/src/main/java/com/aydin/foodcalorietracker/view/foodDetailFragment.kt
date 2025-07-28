@@ -1,4 +1,4 @@
-package com.aydin.foodcalorietracker
+package com.aydin.foodcalorietracker.view
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

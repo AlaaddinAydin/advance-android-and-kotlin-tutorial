@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/foodListFragment"
-        android:name="com.aydin.foodcalorietracker.foodListFragment"
+        android:name="com.aydin.foodcalorietracker.view.foodListFragment"
         android:label="foodListFragment" >
         <action
             android:id="@+id/action_foodListFragment_to_foodDetailFragment"
@@ -15,7 +15,7 @@
     </fragment>
     <fragment
         android:id="@+id/foodDetailFragment"
-        android:name="com.aydin.foodcalorietracker.foodDetailFragment"
+        android:name="com.aydin.foodcalorietracker.view.foodDetailFragment"
         android:label="fragment_food_detail"
         tools:layout="@layout/fragment_food_detail" >
         <argument
