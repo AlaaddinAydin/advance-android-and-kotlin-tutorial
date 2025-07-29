@@ -5,8 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
+import com.aydin.foodcalorietracker.adapter.FoodRecyclerAdapter
 import com.aydin.foodcalorietracker.databinding.FragmentFoodListBinding
 import com.aydin.foodcalorietracker.service.FoodAPI
+import com.aydin.foodcalorietracker.viewmodel.FoodListViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,16 +22,12 @@ import retrofit2.create
 
 class foodListFragment : Fragment() {
 
-    //https://raw.githubusercontent.com/atilsamancioglu/BTK20-JSONVeriSeti/refs/heads/master/besinler.json
     private var _binding: FragmentFoodListBinding? = null
-    // This property is only valid between onCreateView and
-// onDestroyView.
     private val binding get() = _binding!!
-
+    private lateinit var viewModel : FoodListViewModel
+    private var foodRecyclerAdapter = FoodRecyclerAdapter(arrayListOf())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-        }
     }
 
     override fun onCreateView(
@@ -41,24 +42,50 @@ class foodListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.swipeRefreshLayout.setOnRefreshListener {
+        viewModel = ViewModelProvider(this)[FoodListViewModel::class.java]
+        viewModel.refreshData()
 
+        binding.foodRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.foodRecyclerView.adapter = foodRecyclerAdapter
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            binding.foodRecyclerView.visibility = View.GONE
+            binding.foodErrorMessage.visibility = View.GONE
+            binding.foodprogressBar.visibility = View.VISIBLE
+            viewModel.refreshDataFromInternet()
+            binding.swipeRefreshLayout.isRefreshing = false
         }
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://raw.githubusercontent.com/atilsamancioglu/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(FoodAPI::class.java)
+        observData()
+    }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val foods = retrofit.getFood()
-            foods.forEach{
-                println(it.isim)
+    private fun observData(){
+        viewModel.foods.observe(viewLifecycleOwner) {
+            // Adapter
+            foodRecyclerAdapter.updateFoodList(it)
+            binding.foodRecyclerView.visibility = View.VISIBLE
+        }
+
+        viewModel.foodLoading.observe(viewLifecycleOwner) {
+            if(it){
+                binding.foodErrorMessage.visibility = View.GONE
+                binding.foodprogressBar.visibility = View.VISIBLE
+            } else {
+                binding.foodErrorMessage.visibility = View.GONE
+                binding.foodprogressBar.visibility = View.GONE
+            }
+        }
+
+        viewModel.foodErrorMessasge.observe(viewLifecycleOwner) {
+            if (it){
+                binding.foodErrorMessage.visibility = View.VISIBLE
+                binding.foodprogressBar.visibility = View.GONE
+            } else {
+                binding.foodErrorMessage.visibility = View.GONE
+                binding.foodprogressBar.visibility = View.GONE
             }
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
