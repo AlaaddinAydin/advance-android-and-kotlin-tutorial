@@ -6,6 +6,8 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.aydin.foodcalorietracker.databinding.FoodRecyclerRowBinding
 import com.aydin.foodcalorietracker.model.Food
+import com.aydin.foodcalorietracker.util.downloadImage
+import com.aydin.foodcalorietracker.util.makeNewPlaceholder
 import com.aydin.foodcalorietracker.view.foodListFragmentDirections
 
 class FoodRecyclerAdapter(val foodList : ArrayList<Food>) : RecyclerView.Adapter<FoodRecyclerAdapter.FoodRecyclerViewHolder>(){
@@ -35,5 +37,7 @@ class FoodRecyclerAdapter(val foodList : ArrayList<Food>) : RecyclerView.Adapter
             val action = foodListFragmentDirections.actionFoodListFragmentToFoodDetailFragment(foodList[position].uuid)
             Navigation.findNavController(it).navigate(action)
         }
+
+        holder.binding.imageView.downloadImage(foodList[position].gorsel, makeNewPlaceholder(holder.itemView.context))
     }
 }
